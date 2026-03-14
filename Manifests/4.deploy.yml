@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: yelp-camp-deployment
+  namespace: webapp
 spec:
   replicas: 2
   selector:
@@ -12,44 +13,44 @@ spec:
       labels:
         app: yelp-camp
     spec:
+      serviceAccountName: jenkins
+
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  app: yelp-camp
-              topologyKey: kubernetes.io/hostname
+          - labelSelector:
+              matchLabels:
+                app: yelp-camp
+            topologyKey: kubernetes.io/hostname
 
       containers:
-        - name: yelp-camp-container
-          image: shaikmustafa/finalcamp:v1
-          ports:
-            - containerPort: 3000
+      - name: yelp-camp-container
+        image: mahesh129/march20263:appimage
+        ports:
+        - containerPort: 3000
 
-          envFrom:
-            - secretRef:
-                name: yelp-camp-secrets
+        envFrom:
+        - secretRef:
+            name: yelp-camp-secrets
 
-          resources:
-            requests:
-              cpu: "200m"
-              memory: "256Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
 
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 20
+          periodSeconds: 10
 
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
